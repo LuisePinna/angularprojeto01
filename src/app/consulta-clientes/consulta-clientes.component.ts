@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
+import { ClientesService } from '../services/clientes.service';
 
 @Component({
   selector: 'app-consulta-clientes',
@@ -12,12 +11,20 @@ export class ConsultaClientesComponent implements OnInit {
   // atributos (campos)
   clientes = []; // JSON array
 
-  // armazenar o númdro da pagina que está sendo
+  // armazenar o numero da página que está sendo
   // acessada no componente de paginação
   page = 1;
 
-  // inicializando o HttpClient por meio de injeção de dependência
-  constructor(private httpClient: HttpClient) { }
+  // atributo para armazenar o filtro de pesquisa
+  filtro: string;
+
+  //atributo para armazenar os dados do cliente
+  cliente = {
+    idCliente : 0, nome: '', email : '', cpf : ''
+  }
+
+  // inicializando o ClientesService por meio de injeção de dependência
+  constructor(private clientesService: ClientesService) { }
 
   // função executada sempre que o componente é renderizado
   ngOnInit(): void {
@@ -28,7 +35,7 @@ export class ConsultaClientesComponent implements OnInit {
   // função para executar a consulta de clientes na API
   consultarClientes(): void {
 
-    this.httpClient.get(environment.apiUrl + '/api/clientes')
+    this.clientesService.getAll()
       .subscribe( // promisse da API
         (data: any[]) => { // obtendo o retorno de sucesso da API..
           this.clientes = data;
@@ -39,9 +46,22 @@ export class ConsultaClientesComponent implements OnInit {
       );
   }
 
-  // função que vai realizar a paginação no
+  obterCliente(idCliente): void {
+
+    this.clientesService.getById(idCliente)
+      .subscribe(
+        (data:any) => {
+          this.cliente = data;
+        },
+        e => {
+          console.log(e);
+        }
+      );
+  }
+
+  // função para realizar a paginação no
   // componente ngx-pagination
-  handlePageChange(event): void{
+  handlePageChange(event): void {
     this.page = event;
   }
 }
